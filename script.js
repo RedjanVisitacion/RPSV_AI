@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatBox = document.getElementById('responseArea');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
+    // Store the original placeholder text
+    const originalPlaceholder = promptInput.placeholder;
+
     // -------------------------------------------------------------------------
     // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE AI STUDIO API KEY !!!
     // !!! THIS IS NOT SECURE FOR PRODUCTION. DO NOT DEPLOY THIS PUBLICLY. !!!
@@ -12,9 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const MODEL_NAME = 'gemini-1.5-flash-latest'; // Changed from 'gemini-pro'
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
+    // Initially hide the separate loading indicator element
+    loadingIndicator.style.display = 'none';
+
     if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
         appendMessage('ERROR: Please replace \'YOUR_GOOGLE_AI_STUDIO_API_KEY\' in script.js with your actual API key.', 'bot-message');
         submitBtn.disabled = true;
+        promptInput.disabled = true; // Disable input if API key is not set
     }
 
     // Function to append messages to the chat box
@@ -26,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    submitBtn.addEventListener('click', async () => {
+    // Function to send message and get AI response
+    async function sendMessage() {
         const prompt = promptInput.value.trim();
         if (!prompt) {
             return;
@@ -39,9 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Append user message
         appendMessage(prompt, 'user-message');
-        promptInput.value = '';
+        promptInput.value = ''; // Clear input field
 
-        loadingIndicator.style.display = 'block';
+        // Show thinking state in input
+        promptInput.placeholder = 'Thinking...';
+        promptInput.disabled = true;
         submitBtn.disabled = true;
 
         try {
@@ -93,8 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error calling Gemini API:', error);
             appendMessage(`Error: ${error.message}`, 'bot-message');
         } finally {
-            loadingIndicator.style.display = 'none';
+            // Revert thinking state
+            promptInput.placeholder = originalPlaceholder;
+            promptInput.disabled = false;
             submitBtn.disabled = false;
+        }
+    }
+
+    // Event listener for button click
+    submitBtn.addEventListener('click', sendMessage);
+
+    // Event listener for Enter key press in input field
+    promptInput.addEventListener('keydown', (event) => {
+        // Check if the key pressed was Enter (key code 13)
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent default form submission
+            sendMessage(); // Call the send message function
         }
     });
 });
