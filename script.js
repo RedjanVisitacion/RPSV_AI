@@ -4,6 +4,28 @@ const messageBox = document.querySelector('.message-box');
 const ringtone = document.getElementById('ringtone');
 const heartsContainer = document.querySelector('.hearts');
 
+// Function to play audio
+function playAudio() {
+    ringtone.loop = true;
+    let playPromise = ringtone.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(_ => {
+            // Audio is playing
+            console.log('Audio started playing');
+        })
+        .catch(error => {
+            // Auto-play was prevented
+            console.log('Auto-play prevented:', error);
+            // Show a play button or handle the error
+            document.body.addEventListener('click', function initAudio() {
+                ringtone.play();
+                document.body.removeEventListener('click', initAudio);
+            }, { once: true });
+        });
+    }
+}
+
 // Create floating hearts
 function createHeart() {
     const heart = document.createElement('div');
@@ -24,10 +46,7 @@ setInterval(createHeart, 300);
 
 // Start playing romantic music when page loads
 window.addEventListener('load', () => {
-    // Try to play the music
-    ringtone.play().catch(error => {
-        console.log("Auto-play prevented. User interaction required.");
-    });
+    playAudio();
 });
 
 // Make the "No" button run away
