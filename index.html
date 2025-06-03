@@ -3,42 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Special Message</title>
+    <title>Gemini API Client-Side Demo</title>
+    <link rel="icon" href="/img/RPSV-icon.png"/>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="img/RPSV-icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <audio id="ringtone" preload="auto">
-        <source src="audio/BGM.mp3" type="audio/mpeg">
-    </audio>
     <div class="container">
-        <div class="message-box">
-            <div class="message-content">
-                <div class="avatar">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <h1>I have something to tell you...</h1>
-                <p class="message-text">I've been thinking about this for a while, and I really like you! Would you like to go out with me? 💝</p>
-                <div class="question-section">
-                    <p class="question">What's your favorite thing about me? 😊</p>
-                    <textarea id="answer" placeholder="Type your answer here... 💭" rows="3"></textarea>
-                </div>
-            </div>
-            <div class="buttons">
-                <button id="yesBtn" class="accept-btn">
-                    <i class="fas fa-heart"></i>
-                    <span>Yes! 💖</span>
-                </button>
-                <button id="noBtn" class="decline-btn">
-                    <i class="fas fa-heart-broken"></i>
-                    <span>No 💔</span>
-                </button>
-            </div>
+        <h1>Ask RPSV AI</h1>
+        <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea>
+        <button id="submitBtn">Send to RPSV</button>
+        <h2>Response:</h2>
+        <div id="responseArea" class="response-box">
+            Waiting for response...
         </div>
-    </div>
-    <div class="hearts"></div>
+        <div id="loadingIndicator" style="display: none;">Loading...</div>
     
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
