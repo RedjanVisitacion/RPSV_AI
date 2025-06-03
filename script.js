@@ -5,25 +5,25 @@ const ringtone = document.getElementById('ringtone');
 const heartsContainer = document.querySelector('.hearts');
 const answerTextarea = document.getElementById('answer');
 
-// Function to save response to responses.txt
-async function saveToDatabase(type, answer = '') {
-    try {
-        const response = await fetch('/save-response', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ type, answer })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to save response');
-        }
-        
-        console.log('Response saved successfully');
-    } catch (error) {
-        console.error('Error saving response:', error);
-    }
+// Function to save response to localStorage
+function saveResponseToLocalStorage(type, answer = '') {
+    const timestamp = new Date().toLocaleString();
+    const responseData = {
+        timestamp: timestamp,
+        type: type,
+        answer: answer
+    };
+    
+    // Get existing responses or initialize an empty array
+    const existingResponses = JSON.parse(localStorage.getItem('loveConfessionResponses')) || [];
+    
+    // Add the new response
+    existingResponses.push(responseData);
+    
+    // Save the updated array back to localStorage
+    localStorage.setItem('loveConfessionResponses', JSON.stringify(existingResponses));
+    
+    console.log(`Response saved to localStorage: ${type}`);
 }
 
 // Function to play audio
@@ -69,8 +69,8 @@ setInterval(createHeart, 300);
 // Start playing romantic music when page loads
 window.addEventListener('load', () => {
     playAudio();
-    // Save page load event
-    saveToDatabase('Page Loaded');
+    // Save page load event to localStorage
+    saveResponseToLocalStorage('Page Loaded');
 });
 
 // Make the "No" button run away
@@ -84,9 +84,9 @@ noBtn.addEventListener('mouseover', () => {
 });
 
 // When "No" is clicked
-noBtn.addEventListener('click', async () => {
-    // Save the rejection
-    await saveToDatabase('Rejected');
+noBtn.addEventListener('click', () => {
+    // Save the rejection to localStorage
+    saveResponseToLocalStorage('Rejected');
     
     messageBox.innerHTML = `
         <div class="message-content">
@@ -100,7 +100,7 @@ noBtn.addEventListener('click', async () => {
 });
 
 // When "Yes" is clicked
-yesBtn.addEventListener('click', async () => {
+yesBtn.addEventListener('click', () => {
     // Stop the music
     ringtone.pause();
     ringtone.currentTime = 0;
@@ -110,8 +110,8 @@ yesBtn.addEventListener('click', async () => {
         `<p class="answer-text">"${answer}" - That's so sweet! 💝</p>` : 
         '';
     
-    // Save the acceptance and answer
-    await saveToDatabase('Accepted', answer);
+    // Save the acceptance and answer to localStorage
+    saveResponseToLocalStorage('Accepted', answer);
     
     messageBox.innerHTML = `
         <div class="message-content">
