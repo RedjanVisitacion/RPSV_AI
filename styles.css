@@ -1,6 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(45deg, #ff6b6b, #ffc0cb);
+    background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
     height: 100vh;
     margin: 0;
     display: flex;
@@ -10,71 +10,115 @@ body {
     color: white;
 }
 
-.container {
-    background: rgba(255, 255, 255, 0.1);
+.phone-container {
+    background: #000;
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    max-height: 800px;
+    border-radius: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.call-screen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding: 2rem;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 90%;
+    background: linear-gradient(45deg, #ff6b6b, #ffc0cb);
+}
+
+.caller-info {
+    margin-top: 4rem;
+}
+
+.caller-avatar {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.caller-avatar i {
+    font-size: 4rem;
+    color: white;
 }
 
 h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.message {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    line-height: 1.6;
+.caller-name {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+    font-weight: bold;
 }
 
-.buttons {
+.call-status {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.5rem 0;
+}
+
+.call-actions {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
 button {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
     border: none;
-    border-radius: 25px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.3s, box-shadow 0.3s;
+    color: white;
 }
 
-#yesBtn {
+button i {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+}
+
+button span {
+    font-size: 0.8rem;
+}
+
+.accept-call {
     background-color: #4CAF50;
-    color: white;
 }
 
-#noBtn {
+.decline-call {
     background-color: #f44336;
-    color: white;
 }
 
 button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.hearts {
-    position: fixed;
-    pointer-events: none;
-    z-index: -1;
+/* Animation for the calling status */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
 
-.heart {
-    position: absolute;
-    font-size: 1.5rem;
-    animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+.call-status {
+    animation: pulse 1.5s infinite;
 } 
