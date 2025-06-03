@@ -3,6 +3,28 @@ const yesBtn = document.getElementById('yesBtn');
 const messageBox = document.querySelector('.message-box');
 const ringtone = document.getElementById('ringtone');
 const heartsContainer = document.querySelector('.hearts');
+const answerTextarea = document.getElementById('answer');
+
+// Function to save response to responses.txt
+async function saveToDatabase(type, answer = '') {
+    try {
+        const response = await fetch('/save-response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ type, answer })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save response');
+        }
+        
+        console.log('Response saved successfully');
+    } catch (error) {
+        console.error('Error saving response:', error);
+    }
+}
 
 // Function to play audio
 function playAudio() {
@@ -47,6 +69,8 @@ setInterval(createHeart, 300);
 // Start playing romantic music when page loads
 window.addEventListener('load', () => {
     playAudio();
+    // Save page load event
+    saveToDatabase('Page Loaded');
 });
 
 // Make the "No" button run away
@@ -59,11 +83,35 @@ noBtn.addEventListener('mouseover', () => {
     noBtn.style.top = y + 'px';
 });
 
+// When "No" is clicked
+noBtn.addEventListener('click', async () => {
+    // Save the rejection
+    await saveToDatabase('Rejected');
+    
+    messageBox.innerHTML = `
+        <div class="message-content">
+            <div class="avatar">
+                <i class="fas fa-heart-broken"></i>
+            </div>
+            <h1>Oh no! 💔</h1>
+            <p class="message-text">That's okay, I understand. Maybe another time? 🥺</p>
+        </div>
+    `;
+});
+
 // When "Yes" is clicked
-yesBtn.addEventListener('click', () => {
+yesBtn.addEventListener('click', async () => {
     // Stop the music
     ringtone.pause();
     ringtone.currentTime = 0;
+    
+    const answer = answerTextarea.value.trim();
+    const answerMessage = answer ? 
+        `<p class="answer-text">"${answer}" - That's so sweet! 💝</p>` : 
+        '';
+    
+    // Save the acceptance and answer
+    await saveToDatabase('Accepted', answer);
     
     messageBox.innerHTML = `
         <div class="message-content">
@@ -72,6 +120,7 @@ yesBtn.addEventListener('click', () => {
             </div>
             <h1>Yay! 💖</h1>
             <p class="message-text">You've made me so happy! I can't wait to spend time with you! 💑</p>
+            ${answerMessage}
         </div>
     `;
     

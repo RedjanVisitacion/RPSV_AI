@@ -245,4 +245,39 @@ button:hover {
     .container {
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
     }
+}
+
+.question-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.question {
+    font-size: 1.2em;
+    color: #ff4b6e;
+    margin-bottom: 10px;
+}
+
+#answer {
+    width: 80%;
+    padding: 10px;
+    border: 2px solid #ff4b6e;
+    border-radius: 10px;
+    font-size: 1em;
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+#answer:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(255, 75, 110, 0.3);
+}
+
+.answer-text {
+    font-style: italic;
+    color: #ff4b6e;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 75, 110, 0.1);
+    border-radius: 10px;
 } 
