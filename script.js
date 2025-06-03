@@ -4,27 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatBox = document.getElementById('responseArea');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // Store the original placeholder text
     const originalPlaceholder = promptInput.placeholder;
 
-    // -------------------------------------------------------------------------
-    // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE AI STUDIO API KEY !!!
-    // !!! THIS IS NOT SECURE FOR PRODUCTION. DO NOT DEPLOY THIS PUBLICLY. !!!
-    // -------------------------------------------------------------------------
-    const API_KEY = 'AIzaSyA0UeZW-tlZv3FyjS3JZ_NuA-YgyXiR6ZI'; // Replaced with the key you provided
-    const MODEL_NAME = 'gemini-1.5-flash-latest'; // Changed from 'gemini-pro'
+    const API_KEY = 'AIzaSyA0UeZW-tlZv3FyjS3JZ_NuA-YgyXiR6ZI';
+    const MODEL_NAME = 'gemini-1.5-flash-latest';
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
-    // Initially hide the separate loading indicator element
     loadingIndicator.style.display = 'none';
 
     if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
         appendMessage('ERROR: Please replace \'YOUR_GOOGLE_AI_STUDIO_API_KEY\' in script.js with your actual API key.', 'bot-message');
         submitBtn.disabled = true;
-        promptInput.disabled = true; // Disable input if API key is not set
+        promptInput.disabled = true;
     }
 
-    // Function to append messages to the chat box
     function appendMessage(text, senderClass) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', senderClass);
@@ -33,11 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Global variables for game score (assuming this is still desired)
     let playerScore = 0;
     let botScore = 0;
 
-    // Hardcoded greetings and responses
     const greetings = {
         "hi": "Hello! How can I assist you today?",
         "hello": "Hey there! How's your day going?",
@@ -138,18 +129,16 @@ document.addEventListener('DOMContentLoaded', () => {
         "can you make me smile?": "Of course! 😊 You're awesome!"
     };
 
-    // Function to handle bot responses (static or game)
     function respo(userMessage) {
         userMessage = userMessage.toLowerCase().trim();
 
         if (userMessage === "play") {
             return {
                 type: 'game',
-                response: playGame("rock") // Example: Defaulting to "rock"
+                response: playGame("rock")
             };
         }
 
-        // Check for static greeting
         if (greetings[userMessage]) {
              return {
                  type: 'static',
@@ -157,14 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
              };
         }
 
-        // Default type if no static match
         return {
             type: 'default',
-            response: null // Or some indicator that no static response was found
+            response: null
         };
     }
 
-    // Function to play rock-paper-scissors
     function playGame(userChoice) {
         const choices = ["rock", "paper", "scissors"];
         let botChoice = choices[Math.floor(Math.random() * choices.length)];
@@ -179,9 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return `You chose ${userChoice}, I chose ${botChoice}. ${result}\nYour Score: ${playerScore} | Bot Score: ${botScore}`;
     }
 
-    // Function to send a like (this is not currently triggered by HTML elements)
     function sendLike() {
-        let chatBox = document.getElementById("responseArea"); // Use correct ID
+        let chatBox = document.getElementById("responseArea");
         let likeMessage = document.createElement("div");
         likeMessage.classList.add("message", "user-message");
         likeMessage.innerHTML = "👍";
@@ -189,14 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Function to get AI response from API
     async function getAIResponse(prompt) {
          if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
              console.error("API Key not configured.");
              return "ERROR: API Key not configured.";
          }
 
-        // Log the URL being used for debugging
         const apiUrlWithKey = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
         console.log("Attempting to fetch AI response from URL:", apiUrlWithKey);
 
@@ -207,11 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         text: prompt
                     }]
                 }],
-                // Optional: Add generationConfig if needed
-                // generationConfig: {
-                //   temperature: 0.7,
-                //   maxOutputTokens: 256,
-                // }
             };
 
             const response = await fetch(apiUrlWithKey, {
@@ -225,14 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('API Error Response:', errorData);
-                // Return a more informative error message
                 return `API Error: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`;
             }
 
             const data = await response.json();
 
             if (data.candidates && data.candidates.length > 0) {
-                // For simple text models like gemini-pro or gemini-1.5-flash-latest
                 if (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
                     return data.candidates[0].content.parts[0].text;
                 } else {
@@ -253,11 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to send message and get response (static or AI)
     async function sendMessage() {
         const prompt = promptInput.value.trim();
 
-        // Log the prompt value
         console.log('Message sent. Prompt:', prompt);
 
         if (!prompt) {
@@ -265,27 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Append user message
         appendMessage(prompt, 'user-message');
-        promptInput.value = ''; // Clear input field
+        promptInput.value = '';
 
-        // Check for static response first
         const staticResponse = respo(prompt);
         console.log('Result of respo function:', staticResponse);
 
         if (staticResponse.type !== 'default') {
             console.log('Static or game response found. Using static.', staticResponse.response);
-            // Use static or game response
-            // Add a small delay to simulate thinking
+
             setTimeout(() => {
                  appendMessage(staticResponse.response, 'bot-message');
             }, 500);
 
         } else {
             console.log('No static response found. Calling API.');
-            // No static response, use API
 
-            // Show thinking state in input
             promptInput.placeholder = 'Thinking...';
             promptInput.disabled = true;
             submitBtn.disabled = true;
@@ -295,12 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
                  console.log('API Response Text:', aiResponseText);
                  appendMessage(aiResponseText, 'bot-message');
             } catch (error) {
-                 // Error handling is inside getAIResponse, it returns an error string
                  console.error('Error during API call in sendMessage:', error);
-                 appendMessage(`Error: ${error.message}`, 'bot-message'); // Fallback just in case
+                 appendMessage(`Error: ${error.message}`, 'bot-message');
             } finally {
                 console.log('API call finished. Reverting input state.');
-                // Revert thinking state
                 promptInput.placeholder = originalPlaceholder;
                 promptInput.disabled = false;
                 submitBtn.disabled = false;
@@ -308,10 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listener for button click
     submitBtn.addEventListener('click', sendMessage);
 
-    // Event listener for Enter key press in input field
     promptInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             console.log('Enter key pressed.');
