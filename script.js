@@ -48,9 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "how are you?": "I'm just a bot, but I'm feeling great! How about you?",
         "what's your name?": "I'm your friendly chatbot! You can call me whatever you like.",
         "who made you?": "I was created by Redjan, also known as RPSV!",
-        "who is the creator": "Redjan Phil",
-        "who created you": "Redjan Phil",
-        "your creator": "Redjan Phil",
+        "who is the creator": "I was created by Redjan, also known as RPSV!",
+        "who created you": "I was created by Redjan, also known as RPSV!",
+        "your creator": "I was created by Redjan, also known as RPSV!",
         "nice to meet you": "Nice to meet you too! How can I assist?",
         "how's your day?": "Every day is great when I get to chat with you!",
         "what's up?": "Not much, just here to help! What's up with you?",
@@ -138,15 +138,30 @@ document.addEventListener('DOMContentLoaded', () => {
         "can you make me smile?": "Of course! 😊 You're awesome!"
     };
 
-    // Function to handle bot responses
+    // Function to handle bot responses (static or game)
     function respo(userMessage) {
         userMessage = userMessage.toLowerCase().trim();
 
         if (userMessage === "play") {
-            return playGame("rock"); // Example: Defaulting to "rock"
+            return {
+                type: 'game',
+                response: playGame("rock") // Example: Defaulting to "rock"
+            };
         }
 
-        return greetings[userMessage] || "I'm here to chat! Let me know how I can help.";
+        // Check for static greeting
+        if (greetings[userMessage]) {
+             return {
+                 type: 'static',
+                 response: greetings[userMessage]
+             };
+        }
+
+        // Default type if no static match
+        return {
+            type: 'default',
+            response: null // Or some indicator that no static response was found
+        };
     }
 
     // Function to play rock-paper-scissors
@@ -174,26 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Function to send message and get AI response
-    async function sendMessage() {
-        const prompt = promptInput.value.trim();
-        if (!prompt) {
-            return;
-        }
+    // Function to get AI response from API
+    async function getAIResponse(prompt) {
+         if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
+             console.error("API Key not configured.");
+             return "ERROR: API Key not configured.";
+         }
 
-        if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
-             appendMessage("ERROR: API Key not configured in script.js.", 'bot-message');
-            return;
-        }
-
-        // Append user message
-        appendMessage(prompt, 'user-message');
-        promptInput.value = ''; // Clear input field
-
-        // Show thinking state in input
-        promptInput.placeholder = 'Thinking...';
-        promptInput.disabled = true;
-        submitBtn.disabled = true;
+        // Log the URL being used for debugging
+        const apiUrlWithKey = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+        console.log("Attempting to fetch AI response from URL:", apiUrlWithKey);
 
         try {
             const requestBody = {
@@ -209,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // }
             };
 
-            const response = await fetch(API_URL, {
+            const response = await fetch(apiUrlWithKey, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,34 +225,86 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('API Error Response:', errorData);
-                throw new Error(`API Error: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`);
+                // Return a more informative error message
+                return `API Error: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`;
             }
 
             const data = await response.json();
 
             if (data.candidates && data.candidates.length > 0) {
+                // For simple text models like gemini-pro or gemini-1.5-flash-latest
                 if (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                    appendMessage(data.candidates[0].content.parts[0].text, 'bot-message');
+                    return data.candidates[0].content.parts[0].text;
                 } else {
-                    appendMessage("Received a response, but couldn't find the text part.", 'bot-message');
+                    return "Received a response, but couldn't find the text part.";
                 }
             } else if (data.promptFeedback) {
-                 appendMessage(`Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`, 'bot-message');
                  console.warn("Prompt Feedback:", data.promptFeedback);
+                 return `Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`;
             }
             else {
-                appendMessage('No content received from API.', 'bot-message');
                 console.warn("Unexpected API response structure:", data);
+                return 'No content received from API.';
             }
 
         } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            appendMessage(`Error: ${error.message}`, 'bot-message');
-        } finally {
-            // Revert thinking state
-            promptInput.placeholder = originalPlaceholder;
-            promptInput.disabled = false;
-            submitBtn.disabled = false;
+            console.error('Error fetching AI response:', error);
+            return `Error fetching AI response: ${error.message}`;
+        }
+    }
+
+    // Function to send message and get response (static or AI)
+    async function sendMessage() {
+        const prompt = promptInput.value.trim();
+
+        // Log the prompt value
+        console.log('Message sent. Prompt:', prompt);
+
+        if (!prompt) {
+            console.log('Prompt is empty. Returning.');
+            return;
+        }
+
+        // Append user message
+        appendMessage(prompt, 'user-message');
+        promptInput.value = ''; // Clear input field
+
+        // Check for static response first
+        const staticResponse = respo(prompt);
+        console.log('Result of respo function:', staticResponse);
+
+        if (staticResponse.type !== 'default') {
+            console.log('Static or game response found. Using static.', staticResponse.response);
+            // Use static or game response
+            // Add a small delay to simulate thinking
+            setTimeout(() => {
+                 appendMessage(staticResponse.response, 'bot-message');
+            }, 500);
+
+        } else {
+            console.log('No static response found. Calling API.');
+            // No static response, use API
+
+            // Show thinking state in input
+            promptInput.placeholder = 'Thinking...';
+            promptInput.disabled = true;
+            submitBtn.disabled = true;
+
+            try {
+                 const aiResponseText = await getAIResponse(prompt);
+                 console.log('API Response Text:', aiResponseText);
+                 appendMessage(aiResponseText, 'bot-message');
+            } catch (error) {
+                 // Error handling is inside getAIResponse, it returns an error string
+                 console.error('Error during API call in sendMessage:', error);
+                 appendMessage(`Error: ${error.message}`, 'bot-message'); // Fallback just in case
+            } finally {
+                console.log('API call finished. Reverting input state.');
+                // Revert thinking state
+                promptInput.placeholder = originalPlaceholder;
+                promptInput.disabled = false;
+                submitBtn.disabled = false;
+            }
         }
     }
 
@@ -256,10 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for Enter key press in input field
     promptInput.addEventListener('keydown', (event) => {
-        // Check if the key pressed was Enter (key code 13)
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent default form submission
-            sendMessage(); // Call the send message function
+            console.log('Enter key pressed.');
+            event.preventDefault();
+            sendMessage();
         }
     });
 });
