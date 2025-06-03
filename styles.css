@@ -95,6 +95,7 @@ body::before {
     align-self: flex-start;
     border-bottom-left-radius: 5px;
     animation: fadeIn 0.3s ease-in;
+    text-align: left;
 }
 
 .input-container {
