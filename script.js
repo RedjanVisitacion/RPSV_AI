@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('submitBtn');
-    const promptInput = document.getElementById('promptInput');
-    const chatBox = document.getElementById('responseArea'); // Renamed for clarity
+    const promptInput = document.getElementById('user-input');
+    const chatBox = document.getElementById('responseArea');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     // -------------------------------------------------------------------------
@@ -13,34 +13,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
     if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
-        appendMessage('ERROR: Please replace \'YOUR_GOOGLE_AI_STUDIO_API_KEY\' in script.js with your actual API key.', 'received');
+        appendMessage('ERROR: Please replace \'YOUR_GOOGLE_AI_STUDIO_API_KEY\' in script.js with your actual API key.', 'bot-message');
         submitBtn.disabled = true;
     }
 
     // Function to append messages to the chat box
-    function appendMessage(text, sender) {
+    function appendMessage(text, senderClass) {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('message', sender);
-        messageElement.innerHTML = `<p>${text}</p>`; // Use innerHTML to allow for basic formatting if needed
+        messageElement.classList.add('message', senderClass);
+        messageElement.innerHTML = `<p>${text}</p>`;
         chatBox.appendChild(messageElement);
-        chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     submitBtn.addEventListener('click', async () => {
         const prompt = promptInput.value.trim();
         if (!prompt) {
-            // appendMessage('Please enter a prompt.', 'received'); // Optional: give feedback for empty input
             return;
         }
 
         if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
-             appendMessage("ERROR: API Key not configured in script.js.", 'received');
+             appendMessage("ERROR: API Key not configured in script.js.", 'bot-message');
             return;
         }
 
         // Append user message
-        appendMessage(prompt, 'sent');
-        promptInput.value = ''; // Clear input field
+        appendMessage(prompt, 'user-message');
+        promptInput.value = '';
 
         loadingIndicator.style.display = 'block';
         submitBtn.disabled = true;
@@ -76,24 +75,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.candidates && data.candidates.length > 0) {
-                // For simple text models like gemini-pro or gemini-1.5-flash-latest
                 if (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                    appendMessage(data.candidates[0].content.parts[0].text, 'received');
+                    appendMessage(data.candidates[0].content.parts[0].text, 'bot-message');
                 } else {
-                    appendMessage("Received a response, but couldn't find the text part.", 'received');
+                    appendMessage("Received a response, but couldn't find the text part.", 'bot-message');
                 }
             } else if (data.promptFeedback) {
-                 appendMessage(`Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`, 'received');
+                 appendMessage(`Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`, 'bot-message');
                  console.warn("Prompt Feedback:", data.promptFeedback);
             }
             else {
-                appendMessage('No content received from API.', 'received');
+                appendMessage('No content received from API.', 'bot-message');
                 console.warn("Unexpected API response structure:", data);
             }
 
         } catch (error) {
             console.error('Error calling Gemini API:', error);
-            appendMessage(`Error: ${error.message}`, 'received');
+            appendMessage(`Error: ${error.message}`, 'bot-message');
         } finally {
             loadingIndicator.style.display = 'none';
             submitBtn.disabled = false;
