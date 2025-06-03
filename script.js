@@ -1,18 +1,36 @@
 const noBtn = document.getElementById('noBtn');
 const yesBtn = document.getElementById('yesBtn');
-const callScreen = document.querySelector('.call-screen');
-const callStatus = document.querySelector('.call-status');
+const messageBox = document.querySelector('.message-box');
 const ringtone = document.getElementById('ringtone');
+const heartsContainer = document.querySelector('.hearts');
 
-// Start ringing when page loads
+// Create floating hearts
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.innerHTML = '❤️';
+    heart.className = 'heart';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+    heartsContainer.appendChild(heart);
+    
+    // Remove heart after animation
+    setTimeout(() => {
+        heart.remove();
+    }, 5000);
+}
+
+// Create hearts periodically
+setInterval(createHeart, 300);
+
+// Start playing romantic music when page loads
 window.addEventListener('load', () => {
-    // Try to play the ringtone
+    // Try to play the music
     ringtone.play().catch(error => {
         console.log("Auto-play prevented. User interaction required.");
     });
 });
 
-// Make the "Decline" button run away
+// Make the "No" button run away
 noBtn.addEventListener('mouseover', () => {
     const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
     const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
@@ -22,45 +40,22 @@ noBtn.addEventListener('mouseover', () => {
     noBtn.style.top = y + 'px';
 });
 
-// When "Accept" is clicked
+// When "Yes" is clicked
 yesBtn.addEventListener('click', () => {
-    // Stop the ringtone
+    // Stop the music
     ringtone.pause();
     ringtone.currentTime = 0;
     
-    callStatus.textContent = 'Connected';
-    callStatus.style.animation = 'none';
+    messageBox.innerHTML = `
+        <div class="message-content">
+            <div class="avatar">
+                <i class="fas fa-heart"></i>
+            </div>
+            <h1>Yay! 💖</h1>
+            <p class="message-text">You've made me so happy! I can't wait to spend time with you! 💑</p>
+        </div>
+    `;
     
-    setTimeout(() => {
-        callScreen.innerHTML = `
-            <div class="caller-info">
-                <div class="caller-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <h1>Call Connected</h1>
-                <p class="caller-name">Your Secret Admirer</p>
-                <p class="call-status">I've been wanting to tell you something...</p>
-            </div>
-            <div class="call-actions">
-                <button id="endCall" class="decline-call">
-                    <i class="fas fa-phone-slash"></i>
-                    <span>End Call</span>
-                </button>
-            </div>
-        `;
-        
-        // Add end call functionality
-        document.getElementById('endCall').addEventListener('click', () => {
-            callScreen.innerHTML = `
-                <div class="caller-info">
-                    <div class="caller-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <h1>Call Ended</h1>
-                    <p class="caller-name">Your Secret Admirer</p>
-                    <p class="call-status">Thanks for accepting my call! 💖</p>
-                </div>
-            `;
-        });
-    }, 1000);
+    // Create more hearts when accepted
+    setInterval(createHeart, 100);
 }); 

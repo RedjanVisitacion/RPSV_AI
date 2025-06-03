@@ -1,124 +1,248 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
-    height: 100vh;
+    background: linear-gradient(45deg, #ff6b6b, #ffc0cb);
+    min-height: 100vh;
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     color: white;
+    padding: 1rem;
 }
 
-.phone-container {
-    background: #000;
+.container {
+    background: rgba(255, 255, 255, 0.1);
     width: 100%;
-    max-width: 400px;
-    height: 100vh;
-    max-height: 800px;
-    border-radius: 40px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    margin: 1rem;
 }
 
-.call-screen {
-    height: 100%;
+.message-box {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 2rem;
-    background: linear-gradient(45deg, #ff6b6b, #ffc0cb);
+    gap: 2rem;
 }
 
-.caller-info {
-    margin-top: 4rem;
+.message-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.caller-avatar {
-    width: 120px;
-    height: 120px;
+.avatar {
+    width: 100px;
+    height: 100px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    margin: 0 auto 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 1.5rem;
+    animation: pulse 2s infinite;
 }
 
-.caller-avatar i {
-    font-size: 4rem;
+.avatar i {
+    font-size: 3rem;
     color: white;
 }
 
 h1 {
     font-size: 2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.caller-name {
-    font-size: 1.5rem;
-    margin: 0.5rem 0;
-    font-weight: bold;
-}
-
-.call-status {
+.message-text {
     font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0.5rem 0;
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
-.call-actions {
+.buttons {
     display: flex;
     justify-content: center;
     gap: 2rem;
-    margin-bottom: 3rem;
+    flex-wrap: wrap;
 }
 
 button {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
+    padding: 1rem 2rem;
     border: none;
+    border-radius: 25px;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
     transition: transform 0.3s, box-shadow 0.3s;
     color: white;
+    min-width: 120px;
 }
 
 button i {
-    font-size: 1.5rem;
-    margin-bottom: 0.3rem;
+    font-size: 1.2rem;
 }
 
-button span {
-    font-size: 0.8rem;
-}
-
-.accept-call {
+.accept-btn {
     background-color: #4CAF50;
 }
 
-.decline-call {
+.decline-btn {
     background-color: #f44336;
 }
 
 button:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Animation for the calling status */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+.hearts {
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
 }
 
-.call-status {
-    animation: pulse 1.5s infinite;
+.heart {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Media Queries for different screen sizes */
+@media screen and (max-width: 768px) {
+    .container {
+        margin: 0.5rem;
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .message-text {
+        font-size: 1.1rem;
+    }
+
+    .buttons {
+        gap: 1rem;
+    }
+
+    button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .avatar i {
+        font-size: 2.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .message-text {
+        font-size: 1rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* For very small devices */
+@media screen and (max-width: 320px) {
+    .container {
+        padding: 0.8rem;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .avatar i {
+        font-size: 2rem;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+    }
+
+    .message-text {
+        font-size: 0.9rem;
+    }
+}
+
+/* For landscape orientation on mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .container {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+
+    .message-box {
+        gap: 1rem;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0.5rem;
+    }
+
+    .buttons {
+        flex-direction: row;
+    }
+}
+
+/* For devices with high pixel density */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .container {
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    }
 } 
