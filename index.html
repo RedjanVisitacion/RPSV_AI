@@ -3,23 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPSV-AI</title>
-    <link rel="icon" href="/img/RPSV-icon.png"/>
+    <title>AI Messenger</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="img/RPSV-icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Ask RPSV AI</h1>
-        <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea>
-        <button id="submitBtn">Send to RPSV</button>
-        <h2>Response:</h2>
-        <div id="responseArea" class="response-box">
-            Waiting for response...
-        </div>
-        <div id="loadingIndicator" style="display: none;">Loading...</div>
-    
-    </div>
 
+    <div class="messenger-container">
+        <div class="messenger-header">
+            <div class="avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h2>AI Assistant</h2>
+        </div>
+        <div class="chat-box" id="responseArea">
+            <!-- Messages will be appended here -->
+            <div class="message received">
+                <p>Hello! Ask me anything. 😊</p>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="promptInput" placeholder="Type your message...">
+            <button id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div id="loadingIndicator" class="loading-indicator">
+            Thinking...
+        </div>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
