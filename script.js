@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const originalPlaceholder = promptInput.placeholder;
 
-    const API_KEY = 'AIzaSyA0UeZW-tlZv3FyjS3JZ_NuA-YgyXiR6ZI';
+    const API_KEY = 'AIzaSyALJGCqP8rCzMm_A7iCVJCumd8E4Hj_qZo';
     const MODEL_NAME = 'gemini-1.5-flash-latest';
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
@@ -176,59 +176,129 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function getAIResponse(prompt) {
-         if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
-             console.error("API Key not configured.");
-             return "ERROR: API Key not configured.";
-         }
-
-        const apiUrlWithKey = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
-        console.log("Attempting to fetch AI response from URL:", apiUrlWithKey);
-
-        try {
-            const requestBody = {
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-            };
-
-            const response = await fetch(apiUrlWithKey, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('API Error Response:', errorData);
-                return `API Error: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`;
-            }
-
-            const data = await response.json();
-
-            if (data.candidates && data.candidates.length > 0) {
-                if (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                    return data.candidates[0].content.parts[0].text;
-                } else {
-                    return "Received a response, but couldn't find the text part.";
-                }
-            } else if (data.promptFeedback) {
-                 console.warn("Prompt Feedback:", data.promptFeedback);
-                 return `Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`;
-            }
-            else {
-                console.warn("Unexpected API response structure:", data);
-                return 'No content received from API.';
-            }
-
-        } catch (error) {
-            console.error('Error fetching AI response:', error);
-            return `Error fetching AI response: ${error.message}`;
+        if (API_KEY === 'YOUR_GOOGLE_AI_STUDIO_API_KEY') {
+            console.error("API Key not configured.");
+            return "ERROR: API Key not configured.";
         }
-    }
+
+       const apiUrlWithKey = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+       console.log("Attempting to fetch AI response from URL:", apiUrlWithKey);
+
+       try {
+           const requestBody = {
+               contents: [{
+                   parts: [{
+                       text: prompt
+                   }]
+               }],
+           };
+
+           const response = await fetch(apiUrlWithKey, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify(requestBody)
+           });
+
+           if (!response.ok) {
+               const errorData = await response.json();
+               console.error('API Error Response:', errorData);
+               
+               // Handle specific error cases
+               if (response.status === 429) {
+                   return "🚫 Rate limit exceeded! Please wait a moment before sending another message. The API has a limit on requests per minute.";
+               } else if (response.status === 403) {
+                   return "�� API access denied. Please check your API key or billing settings.";
+               } else if (response.status === 400) {
+                   return "❌ Invalid request. Please try rephrasing your message.";
+               } else {
+                   return `API Error: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`;
+               }
+           }
+
+           const data = await response.json();
+
+           if (data.candidates && data.candidates.length > 0) {
+               if (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
+                   return data.candidates[0].content.parts[0].text;
+               } else {
+                   return "Received a response, but couldn't find the text part.";
+               }
+           } else if (data.promptFeedback) {
+                console.warn("Prompt Feedback:", data.promptFeedback);
+                return `Blocked due to: ${data.promptFeedback.blockReason}. Check safety ratings.`;
+           }
+           else {
+               console.warn("Unexpected API response structure:", data);
+               return 'No content received from API.';
+           }
+
+       } catch (error) {
+           console.error('Error fetching AI response:', error);
+           return `Error fetching AI response: ${error.message}`;
+       }
+   }
+
+
+       // Rate limiting variables
+       let lastRequestTime = 0;
+       const MIN_REQUEST_INTERVAL = 2000; // 2 seconds between requests
+   
+       async function sendMessage() {
+           const prompt = promptInput.value.trim();
+   
+           console.log('Message sent. Prompt:', prompt);
+   
+           if (!prompt) {
+               console.log('Prompt is empty. Returning.');
+               return;
+           }
+   
+           // Check rate limiting
+           const currentTime = Date.now();
+           if (currentTime - lastRequestTime < MIN_REQUEST_INTERVAL) {
+               const waitTime = Math.ceil((MIN_REQUEST_INTERVAL - (currentTime - lastRequestTime)) / 1000);
+               appendMessage(`Please wait ${waitTime} second(s) before sending another message.`, 'bot-message');
+               return;
+           }
+   
+           appendMessage(prompt, 'user-message');
+           promptInput.value = '';
+   
+           const staticResponse = respo(prompt);
+           console.log('Result of respo function:', staticResponse);
+   
+           if (staticResponse.type !== 'default') {
+               console.log('Static or game response found. Using static.', staticResponse.response);
+   
+               setTimeout(() => {
+                    appendMessage(staticResponse.response, 'bot-message');
+               }, 500);
+   
+           } else {
+               console.log('No static response found. Calling API.');
+   
+               promptInput.placeholder = 'Thinking...';
+               promptInput.disabled = true;
+               submitBtn.disabled = true;
+   
+               try {
+                    lastRequestTime = Date.now(); // Update last request time
+                    const aiResponseText = await getAIResponse(prompt);
+                    console.log('API Response Text:', aiResponseText);
+                    appendMessage(aiResponseText, 'bot-message');
+               } catch (error) {
+                    console.error('Error during API call in sendMessage:', error);
+                    appendMessage(`Error: ${error.message}`, 'bot-message');
+               } finally {
+                   console.log('API call finished. Reverting input state.');
+                   promptInput.placeholder = originalPlaceholder;
+                   promptInput.disabled = false;
+                   submitBtn.disabled = false;
+               }
+           }
+       }
 
     async function sendMessage() {
         const prompt = promptInput.value.trim();
